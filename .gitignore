@@ -76,9 +76,11 @@ logs/
 
 # Environment files
 .env
-.env.local
 .env.production
 .env.staging
+
+# Allow local env files (keep .env.local for local development)
+!.env.local
 
 # Coverage reports
 .coverage
