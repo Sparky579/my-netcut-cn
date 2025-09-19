@@ -323,7 +323,6 @@ def create_app() -> Flask:
 		return jsonify({'ok': True})
 
 	@app.get('/api/dashboard')
-	@require_master_key
 	def dashboard():
 		db = get_db()
 		# 列出包含文件的频道与大小
@@ -333,7 +332,11 @@ def create_app() -> Flask:
 		for r in rows:
 			channels.append({'channel': r['channel_name'], 'total': int(r['total'] or 0)})
 			grand += int(r['total'] or 0)
-		return jsonify({'channels': channels, 'total_size': grand})
+		response = jsonify({'channels': channels, 'total_size': grand})
+		response.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate'
+		response.headers['Pragma'] = 'no-cache'
+		response.headers['Expires'] = '0'
+		return response
 
 	@app.post('/api/cleanup')
 	@require_master_key

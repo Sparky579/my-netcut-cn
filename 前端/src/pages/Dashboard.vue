@@ -20,19 +20,14 @@
 </template>
 
 <script setup lang="ts">
-import axios from 'axios'
+import http from '../http'
 import { ref, onMounted } from 'vue'
 
 const channels = ref<{channel:string,total:number}[]>([])
 const total = ref(0)
 
-function authHeaders() {
-  const mk = localStorage.getItem('MASTER_KEY')
-  return { 'x-master-key': mk || '' }
-}
-
 async function load() {
-  const resp = await axios.get('/api/dashboard', { headers: authHeaders() })
+  const resp = await http.get('/api/dashboard')
   channels.value = resp.data.channels
   total.value = resp.data.total_size
 }
