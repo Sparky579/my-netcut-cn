@@ -149,7 +149,16 @@ async function uploadFiles(list: FileList) {
 }
 
 function downloadUrl(id: number) {
-  return `/api/channel/${encodeURIComponent(channel)}/download/${id}`
+  const base = (import.meta as any).env?.VITE_BACKEND_URL || ''
+  const mk = localStorage.getItem('MASTER_KEY') || ''
+  const pwd = localStorage.getItem(`PWD_${channel}`) || ''
+  const path = `/api/channel/${encodeURIComponent(channel)}/download/${id}`
+  const qs = new URLSearchParams()
+  if (mk) qs.set('master_key', mk)
+  if (pwd) qs.set('password', pwd)
+  const query = qs.toString()
+  const prefix = base ? String(base).replace(/\/$/, '') : ''
+  return `${prefix}${path}${query ? `?${query}` : ''}`
 }
 
 async function removeFile(id: number) {

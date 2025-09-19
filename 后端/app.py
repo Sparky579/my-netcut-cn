@@ -110,7 +110,7 @@ def require_channel_access(func):
 			return jsonify({'error': 'expired_master_key'}), 401
 
 		# 校验频道密码（若设置）
-		pwd = request.headers.get('x-channel-password') or (request.json.get('password') if request.is_json else None)
+		pwd = request.headers.get('x-channel-password') or (request.json.get('password') if request.is_json else None) or request.args.get('password')
 		info = db.execute('SELECT password_hash, expire_at FROM channels WHERE name = ?', (channel,)).fetchone()
 		if info is not None:
 			if info['expire_at'] is not None and info['expire_at'] > 0 and info['expire_at'] < now_ts():
@@ -324,6 +324,8 @@ def create_app() -> Flask:
 
 	@app.get('/api/dashboard')
 	def dashboard():
+		# 每次访问仪表盘先做一次过期清理
+		periodic_cleanup()
 		db = get_db()
 		# 列出包含文件的频道与大小
 		rows = db.execute('SELECT channel_name, SUM(size) AS total FROM files GROUP BY channel_name').fetchall()
